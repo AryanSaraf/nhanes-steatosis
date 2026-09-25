@@ -1,0 +1,16 @@
+# Virtual environment
+.venv/
+
+# Data
+data/raw/
+data/processed/
+
+# Python
+__pycache__/
+*.pyc
+
+# Jupyter
+.ipynb_checkpoints/
+
+# macOS
+.DS_Store
