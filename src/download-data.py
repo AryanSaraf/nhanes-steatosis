@@ -20,7 +20,7 @@ FILES = [
     "P_DIQ",
 ]
 
-OUT_DIR = Path("data/raw/2017-2020")
+OUT_DIR = Path("../data/raw/2017-2020")
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
