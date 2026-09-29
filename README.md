@@ -57,38 +57,38 @@ The analysis is organized into a small number of notebooks, with each notebook r
 
 ```text
 notebooks/
-├── 01_data_preparation.ipynb
-├── 02_clustering.ipynb
-├── 03_modeling.ipynb
-├── 04_evaluation_interpretation.ipynb
-└── 05_temporal_validation.ipynb       # Optional
+├── 01-data-preparation.ipynb
+├── 02-metabolic-phenotyping.ipynb
+├── 03-predictive-modeling.ipynb
+├── 04-evaluation-interpretation.ipynb
+└── 05-temporal-validation.ipynb       # Optional
 ```
 
-### 1. Data Preparation (`01_data_preparation.ipynb`)
+### 1. Data Preparation (`01-data-preparation.ipynb`)
 
 **Raw XPT files → select variables → rename variables → merge on `SEQN` → filter adults → require valid elastography and CAP → restrict to fasting subsample → remove incomplete predictor records → define hepatic steatosis from CAP → save analysis cohort**
 
 Loads and merges the required NHANES 2017–March 2020 datasets, applies the study eligibility criteria, cleans the selected variables, and constructs the final analysis cohort. Hepatic steatosis is defined from the CAP measurement, and the resulting dataset is saved to `data/processed/analysis_cohort.csv`.
 
-### 2. Metabolic Clustering (`02_clustering.ipynb`)
+### 2. Metabolic Phenotyping (`02-metabolic-phenotyping.ipynb`)
 
-**Load analysis cohort → explore metabolic variables → standardize variables → determine number of clusters → apply clustering → examine cluster characteristics → assign metabolic phenotype**
+**Load analysis cohort → train/test split → explore training metabolic variables → fit standardization on training data → determine number of clusters using training data → fit clustering on training data → characterize metabolic phenotypes → assign training and test participants to learned phenotypes → save split datasets**
 
-Uses BMI, waist circumference, blood pressure, HDL, triglycerides, and glucose to identify data-driven metabolic phenotypes. The resulting cluster assignment is added to each participant for use in subsequent modeling and subgroup analysis.
+The analysis cohort is first divided into training and test sets. Metabolic phenotypes are then identified using only the training data to prevent information from the held-out test set influencing phenotype discovery. BMI, waist circumference, blood pressure, HDL, triglycerides, and glucose are standardized and clustered within the training set. The fitted training-set scaler and K-means model are subsequently used to assign test participants to the learned phenotypes without refitting.
 
-### 3. Predictive Modeling (`03_modeling.ipynb`)
+### 3. Predictive Modeling (`03-predictive-modeling.ipynb`)
 
-**Load clustered cohort → train/test split → prepare predictors → logistic regression baseline → XGBoost without cluster ID → XGBoost with cluster ID → generate predictions**
+**Load clustered train/test datasets → prepare predictors → logistic regression baseline → XGBoost without cluster ID → XGBoost with cluster ID → generate predictions**
 
 Develops models for identifying hepatic steatosis from demographic, clinical, and metabolic predictors. Logistic regression provides a simple baseline, while the two XGBoost models allow assessment of whether metabolic phenotype information adds useful predictive information.
 
-### 4. Evaluation and Interpretation (`04_evaluation_interpretation.ipynb`)
+### 4. Evaluation and Interpretation (`04-evaluation-interpretation.ipynb`)
 
 **Load model predictions → calculate performance metrics → compare models → evaluate performance by phenotype → calculate SHAP values → compare important predictors across phenotypes**
 
 Evaluates model performance using metrics such as AUROC, AUPRC, sensitivity, and specificity. SHAP is then used to examine which variables contribute most strongly to XGBoost predictions overall and within each metabolic phenotype.
 
-### 5. Temporal Validation (`05_temporal_validation.ipynb`, Optional)
+### 5. Temporal Validation (`05-temporal-validation.ipynb`, Optional)
 
 **Prepare NHANES 2021–2023 data → harmonize variables → apply existing pipeline → generate predictions → evaluate performance → compare with 2017–2020 results**
 
@@ -100,8 +100,9 @@ Uses the newer NHANES 2021–2023 cycle as a temporal validation dataset to asse
 Raw NHANES data
 → Data preparation
 → Final analysis cohort
-→ Metabolic clustering
 → Train/test split
+→ Training-set metabolic phenotyping
+→ Assign test participants to learned phenotypes
 → Logistic regression + XGBoost
 → Model evaluation
 → SHAP and phenotype-specific interpretation
