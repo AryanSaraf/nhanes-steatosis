@@ -2,7 +2,7 @@
 
 This project uses NHANES data to investigate whether routinely available demographic and metabolic variables can identify adults with hepatic steatosis.
 
-The initial analysis uses the **NHANES 2017–March 2020 pre-pandemic dataset**. The **2021–2023 NHANES cycle** is reserved for later validation.
+The analysis uses the **NHANES 2017–March 2020 pre-pandemic dataset**.
 
 ## Project Structure
 
@@ -10,14 +10,15 @@ The initial analysis uses the **NHANES 2017–March 2020 pre-pandemic dataset**.
 nhanes-steatosis/
 ├── data/
 │   ├── raw/
-│   │   ├── 2017-2020/       # Original NHANES XPT files
-│   │   └── 2021-2023/       # Future validation data
-│   └── processed/            # Cleaned and merged datasets
-├── notebooks/                # Analysis notebooks
-├── src/                      # Downloading and processing scripts
-├── results/                  # Model results, tables, and figures
+│   │   └── 2017-2020/       # Original NHANES XPT files
+│   ├── processed/           # Cleaned and transformed datasets
+│   └── models/              # Fitted pipelines and selected parameters
+├── notebooks/               # Analysis notebooks
+├── src/                     # Downloading and processing scripts
+├── results/                 # Tuning results, predictions, tables, and figures
 └── README.md
 ```
+
 ## Datasets
 
 We use the **NHANES 2017–March 2020 pre-pandemic** datasets for the main analysis.
@@ -59,9 +60,8 @@ The analysis is organized into a small number of notebooks, with each notebook r
 notebooks/
 ├── 01-data-preparation.ipynb
 ├── 02-metabolic-phenotyping.ipynb
-├── 03-predictive-modeling.ipynb
-├── 04-evaluation-interpretation.ipynb
-└── 05-temporal-validation.ipynb       # Optional
+├── 03-model-development.ipynb
+└── 04-evaluation-interpretation.ipynb
 ```
 
 ### 1. Data Preparation (`01-data-preparation.ipynb`)
@@ -76,23 +76,17 @@ Loads and merges the required NHANES 2017–March 2020 datasets, applies the stu
 
 The analysis cohort is first divided into training and test sets. Metabolic phenotypes are then identified using only the training data to prevent information from the held-out test set influencing phenotype discovery. BMI, waist circumference, blood pressure, HDL, triglycerides, and glucose are standardized and clustered within the training set. The fitted training-set scaler and K-means model are subsequently used to assign test participants to the learned phenotypes without refitting.
 
-### 3. Predictive Modeling (`03-predictive-modeling.ipynb`)
+### 3. Model Development (`03-model-development.ipynb`)
 
-**Load clustered train/test datasets → prepare predictors → logistic regression baseline → XGBoost without cluster ID → XGBoost with cluster ID → generate predictions**
+**Load phenotyped training cohort → prepare predictors and preprocessing pipelines → fit logistic regression baseline → tune XGBoost without phenotype using five-fold stratified cross-validation → retain selected base model → fit XGBoost with phenotype using the same selected hyperparameters → save fitted pipelines and tuning results**
 
-Develops models for identifying hepatic steatosis from demographic, clinical, and metabolic predictors. Logistic regression provides a simple baseline, while the two XGBoost models allow assessment of whether metabolic phenotype information adds useful predictive information.
+Develops three models using only the training cohort: logistic regression, XGBoost without metabolic phenotype and XGBoost with metabolic phenotype. XGBoost hyperparameters are selected using five-fold stratified cross-validation, with mean validation AUROC as the selection criterion. The selected configuration is used for both XGBoost models, and all fitted pipelines are saved for held-out evaluation.
 
 ### 4. Evaluation and Interpretation (`04-evaluation-interpretation.ipynb`)
 
-**Load model predictions → calculate performance metrics → compare models → evaluate performance by phenotype → calculate SHAP values → compare important predictors across phenotypes**
+**Load fitted models and held-out test cohort → generate test predictions once → calculate performance metrics → compare models → evaluate performance by phenotype → calculate SHAP values → compare important predictors across phenotypes**
 
-Evaluates model performance using metrics such as AUROC, AUPRC, sensitivity, and specificity. SHAP is then used to examine which variables contribute most strongly to XGBoost predictions overall and within each metabolic phenotype.
-
-### 5. Temporal Validation (`05-temporal-validation.ipynb`, Optional)
-
-**Prepare NHANES 2021–2023 data → harmonize variables → apply existing pipeline → generate predictions → evaluate performance → compare with 2017–2020 results**
-
-Uses the newer NHANES 2021–2023 cycle as a temporal validation dataset to assess whether the developed approach and findings remain applicable in a more recent population.
+Loads the three fitted model pipelines and generates predictions once for the held-out test cohort. Overall performance is evaluated using AUROC, AUPRC, sensitivity, specificity and other relevant metrics. Performance is compared across models and metabolic phenotypes to determine whether phenotype information provides additional predictive value. SHAP is then used to examine predictor contributions overall and within each metabolic phenotype.
 
 ## Overall Pipeline
 
@@ -106,5 +100,4 @@ Raw NHANES data
 → Logistic regression + XGBoost
 → Model evaluation
 → SHAP and phenotype-specific interpretation
-→ Optional 2021–2023 temporal validation
 ```
