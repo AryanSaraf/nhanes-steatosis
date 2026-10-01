@@ -84,7 +84,7 @@ Develops three models using only the training cohort: logistic regression, XGBoo
 
 ### 4. Evaluation and Interpretation (`04-evaluation-interpretation.ipynb`)
 
-**Load fitted models and held-out test cohort → generate test predictions once → calculate performance metrics → compare models → evaluate performance by phenotype → calculate SHAP values → compare important predictors across phenotypes**
+**Load fitted models and held-out test cohort → generate test predictions once → calculate overall performance metrics → evaluate performance by metabolic phenotype → visualize ROC/PR curves and classification errors → quantify AUROC uncertainty and model differences → calculate overall and phenotype-specific SHAP values → interpret findings**
 
 Loads the three fitted model pipelines and generates predictions once for the held-out test cohort. Overall performance is evaluated using AUROC, AUPRC, sensitivity, specificity and other relevant metrics. Performance is compared across models and metabolic phenotypes to determine whether phenotype information provides additional predictive value. SHAP is then used to examine predictor contributions overall and within each metabolic phenotype.
 
