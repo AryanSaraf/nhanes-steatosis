@@ -15,7 +15,7 @@ nhanes-steatosis/
 │   └── models/              # Fitted pipelines and selected parameters
 ├── notebooks/               # Analysis notebooks
 ├── src/                     # Downloading and processing scripts
-├── results/                 # Tuning results, predictions, tables, and figures
+├── results/                 # Tuning results
 └── README.md
 ```
 
