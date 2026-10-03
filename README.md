@@ -15,7 +15,7 @@ nhanes-steatosis/
 │   └── models/              # Fitted pipelines and selected parameters
 ├── notebooks/               # Analysis notebooks
 ├── src/                     # Downloading and processing scripts
-├── results/                 # Tuning results, predictions, tables, and figures
+├── results/                 # Tuning results
 └── README.md
 ```
 
@@ -84,9 +84,9 @@ Develops three models using only the training cohort: logistic regression, XGBoo
 
 ### 4. Evaluation and Interpretation (`04-evaluation-interpretation.ipynb`)
 
-**Load fitted models and held-out test cohort → generate test predictions once → calculate performance metrics → compare models → evaluate performance by phenotype → calculate SHAP values → compare important predictors across phenotypes**
+**Load fitted models and held-out test cohort → validate test data → generate and save participant-level predictions → calculate overall performance metrics → evaluate performance by metabolic phenotype → visualize ROC/PR curves and classification errors → assess probability calibration → quantify AUROC uncertainty and model differences → calculate overall and phenotype-specific SHAP values → interpret findings**
 
-Loads the three fitted model pipelines and generates predictions once for the held-out test cohort. Overall performance is evaluated using AUROC, AUPRC, sensitivity, specificity and other relevant metrics. Performance is compared across models and metabolic phenotypes to determine whether phenotype information provides additional predictive value. SHAP is then used to examine predictor contributions overall and within each metabolic phenotype.
+Loads the three fitted model pipelines and generates predictions once for the held-out test cohort after performing basic data-validation checks. Overall performance is evaluated using AUROC, average precision (AP), sensitivity, specificity and other relevant metrics, while Brier scores and calibration curves assess probabilistic calibration. Performance is compared across models and metabolic phenotypes, and bootstrap confidence intervals and paired comparisons quantify uncertainty in AUROC estimates. SHAP is then used to examine predictor contributions overall and within each metabolic phenotype. Participant-level predictions are saved to `results/model_predictions.csv`.
 
 ## Overall Pipeline
 
@@ -97,7 +97,9 @@ Raw NHANES data
 → Train/test split
 → Training-set metabolic phenotyping
 → Assign test participants to learned phenotypes
-→ Logistic regression + XGBoost
-→ Model evaluation
-→ SHAP and phenotype-specific interpretation
+→ Logistic regression baseline
+→ XGBoost tuning and model development
+→ Held-out model evaluation
+→ Phenotype-specific evaluation
+→ SHAP interpretation
 ```
